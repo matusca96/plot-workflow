@@ -21,10 +21,12 @@
   "packageManager": "pnpm@12.15.0",
   "type": "module",
   "dependencies": {
+    "@react-email/render": "^2.1.1",
     "inngest": "^4",
     "next": "^16.2.12",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "resend": "^6.34.1"
   },
   "devDependencies": {
     "@types/node": "^24",

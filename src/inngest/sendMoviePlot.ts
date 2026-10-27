@@ -1,6 +1,9 @@
-import { OMDB_BASE_URL } from "@/lib/omdb/constants";
-import { inngest, sendMoviePlotToEmailType } from "./client";
+import { NonRetriableError } from "inngest";
+
 import { getMovie } from "@/lib/omdb/client";
+import { sendResendMoviePlotEmail } from "@/lib/resend/client";
+
+import { inngest, sendMoviePlotToEmailType } from "./client";
 
 export const sendMoviePlotToEmail = inngest.createFunction(
   {
@@ -8,10 +11,24 @@ export const sendMoviePlotToEmail = inngest.createFunction(
     triggers: { event: sendMoviePlotToEmailType },
   },
   async ({ event, step }) => {
-    const movie = await step.run("fetch-movie", async () =>
-      getMovie({ movieTitle: event.data.movie_title }),
-    );
+    const movie = await step.run("fetch-movie", async () => {
+      const data = await getMovie({ movieTitle: event.data.movie_title });
 
-    return { movie };
+      if (data.Response === "False") {
+        throw new NonRetriableError("Movie does not exist");
+      }
+
+      return data;
+    });
+
+    const emailData = await step.run("send-email", async () => {
+      const { data, error } = await sendResendMoviePlotEmail(movie);
+
+      if (error) throw new Error(error.message);
+
+      return data;
+    });
+
+    return { movie, emailData };
   },
 );

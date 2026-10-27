@@ -1,5 +1,3 @@
-import { NonRetriableError } from "inngest";
-
 import { env } from "@/env";
 
 import { OMDB_BASE_URL } from "./constants";
@@ -14,10 +12,6 @@ export const getMovie = async (params: GetMovieRequestParams) => {
   const payload: unknown = await response.json();
 
   const data = getMovieResponseSchema.parse(payload);
-
-  if (data.Response === "False") {
-    throw new NonRetriableError("Movie does not exist");
-  }
   
   return data;
 };
