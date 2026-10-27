@@ -44,14 +44,21 @@ Use Node.js 24 and pnpm 12.15.0. You need an OMDb API key and a Resend API key.
 
 The form calls `POST /api/send-movie-plot-to-email`, which validates the input and sends the event. Run `pnpm typecheck` to check TypeScript.
 
-## Assumptions
+## Assumptions & Improvements
 
 - OMDb always return a single movie when querying with `t` param even when the query is incomplete.
 - Few scenarios stops the workflow without sending an email, after testing OMDb api a bit, I've found:
    - `Movie not found!` when no movie is found (200)
    - `Invalid API key!` or `No API key provided.` when invalid API key or none provided (401)
    - `Incorrect IMDb ID.` when no query param besides `apikey` is provided (200)
+- `Request limit reached!` when reaching daily limit (429) in particular throws `RetryAfterError` since is a rate limit issue
+- For Resend was also mapped few scenarios where the workflow stops and don't retry sending the email, check `NON_RETRIABLE_RESEND_ERRORS`
 - Resend uses the event ID as an idempotency key. Duplicate protection applies to the same key and payload within its 24-hour retention window (https://resend.com/changelog/idempotency-keys).
+- Rate limit was added to the function to allow 1 request per minute of the same movie title + recipient email and avoid spam
+
+## Limitations
+
+- Function-level idempotency based on movie title and recipient is disabled. Otherwise, a failed run would prevent new event-triggered runs for that combination during the 24-hour deduplication window. Resend uses an event-based idempotency key to protect email-step retries against duplicate sends. New requests remain subject to the per-recipient rate limit.
 
 ## Recommendation for the exercise
 

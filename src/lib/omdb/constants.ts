@@ -1,4 +1,4 @@
-export const OMDB_BASE_URL = "https://www.omdbapi.co";
+export const OMDB_BASE_URL = "https://www.omdbapi.com";
 
 export const NON_RETRIABLE_OMDB_ERRORS = new Set([
   "Movie not found!",

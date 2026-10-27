@@ -19,9 +19,9 @@ export const sendMoviePlotToEmail = inngest.createFunction(
     triggers: { event: sendMoviePlotToEmailType },
     // idempotency: 'event.data.movie_title + ":" + event.data.recipient_email',
     rateLimit: {
-      limit: 5,
-      period: "1h",
-      key: "event.data.recipient_email",
+      limit: 1,
+      period: "1m",
+      key: 'event.data.movie_title + ":" + event.data.recipient_email',
     },
   },
   async ({ event, step }) => {
