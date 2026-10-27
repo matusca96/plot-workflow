@@ -2,19 +2,24 @@ import { Resend } from "resend";
 
 import { env } from "@/env";
 
-import { Movie } from "@/lib/omdb/types";
-
 import { MoviePlotTemplate } from "@/components/email-templates/MoviePlotTemplate";
 
+import { SendResendMoviePlotEmailParams } from "./types";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
-export const sendResendMoviePlotEmail = async (movie: Movie) => {
+export const sendResendMoviePlotEmail = async ({
+  movie,
+  recipientEmail,
+  eventId
+}: SendResendMoviePlotEmailParams) => {
   const { data, error } = await resend.emails.send({
-    from: "Acme <onboarding@resend.dev>",
-    to: ["delivered@resend.dev"],
+    from: `Movie Plot <${env.RESEND_FROM_EMAIL}>`,
+    to: [recipientEmail],
     subject: "Here is your movie plot!",
     react: MoviePlotTemplate({ movie }),
+  }, {
+    idempotencyKey: `movie-plot/${eventId}`
   });
 
   return { data, error };

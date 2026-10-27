@@ -4,7 +4,7 @@ export async function POST() {
   try {
     await inngest.send(
       sendMoviePlotToEmailType.create({
-        movie_title: "Avengers",
+        movie_title: "Batman & Robin",
         recipient_email: "gomesloud@gmail.com"
       }),
     );
@@ -13,6 +13,9 @@ export async function POST() {
   } catch (err) {
     console.error(err);
 
-    return Response.error();
+    return Response.json(
+      { error: "Failed to send event" },
+      { status: 500 },
+    );
   }
 }
