@@ -47,11 +47,11 @@ The form calls `POST /api/send-movie-plot-to-email`, which validates the input a
 ## Assumptions
 
 - OMDb always return a single movie when querying with `t` param even when the query is incomplete.
-- Few scenarios stops th workflow without sending an email, after testing OMDb api a bit, I've found:
+- Few scenarios stops the workflow without sending an email, after testing OMDb api a bit, I've found:
    - `Movie not found!` when no movie is found (200)
    - `Invalid API key!` or `No API key provided.` when invalid API key or none provided (401)
    - `Incorrect IMDb ID.` when no query param besides `apikey` is provided (200)
-- I'm using `idempotencyKey` in Resend to avoid duplicated emails
+- Resend uses the event ID as an idempotency key. Duplicate protection applies to the same key and payload within its 24-hour retention window (https://resend.com/changelog/idempotency-keys).
 
 ## Recommendation for the exercise
 
