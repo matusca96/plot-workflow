@@ -1,8 +1,8 @@
-export const OMDB_BASE_URL = "https://www.omdbapi.com";
+export const OMDB_BASE_URL = "https://www.omdbapi.co";
 
-export const permanentOmdbErrors = new Set([
+export const NON_RETRIABLE_OMDB_ERRORS = new Set([
   "Movie not found!",
-  "Invalid API key!",
-  "No API key provided.",
   "Incorrect IMDb ID.",
 ]);
+
+export const OMDB_RATE_LIMIT_ERROR = "Request limit reached!";

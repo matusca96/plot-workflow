@@ -4,7 +4,7 @@ import { OMDB_BASE_URL } from "./constants";
 
 import { GetMovieRequestParams, getMovieResponseSchema } from "./types";
 
-import { OmdbHttpError } from "./errors";
+import { OmdbHttpError, OmdbSchemaError } from "./errors";
 
 export const getMovie = async (params: GetMovieRequestParams) => {
   const searchParams = new URLSearchParams({
@@ -28,7 +28,24 @@ export const getMovie = async (params: GetMovieRequestParams) => {
     throw new OmdbHttpError(response.status);
   }
 
-  const payload: unknown = await response.json();
+  let payload: unknown;
 
-  return getMovieResponseSchema.parse(payload);
+  try {
+    payload = await response.json();
+  } catch (cause) {
+    throw new Error(
+      `OMDb returned a non-JSON body (status ${response.status})`,
+      { cause },
+    );
+  }
+
+  const parsed = getMovieResponseSchema.safeParse(payload);
+
+  if (!parsed.success) {
+    if (!response.ok) throw new OmdbHttpError(response.status);
+    
+    throw new OmdbSchemaError(parsed.error.issues, { cause: parsed.error });
+  }
+
+  return parsed.data;
 };
