@@ -1,21 +1,43 @@
-import { inngest, sendMoviePlotToEmailType } from "@/inngest/client";
+import {
+  inngest,
+  movieWatchedDataSchema,
+  sendMoviePlotToEmailType,
+} from "@/inngest/client";
 
-export async function POST() {
+export const POST = async (request: Request) => {
+  let body: unknown;
+
   try {
-    await inngest.send(
-      sendMoviePlotToEmailType.create({
-        movie_title: "Batman & Robin",
-        recipient_email: "gomesloud@gmail.com"
-      }),
+    body = await request.json();
+  } catch {
+    return Response.json(
+      { error: "We couldn't read your request. Please try again." },
+      { status: 400 },
     );
+  }
 
-    return Response.json({ message: "Event sent" });
+  const result = movieWatchedDataSchema.safeParse(body);
+
+  if (!result.success) {
+    return Response.json(
+      { error: "Please enter a movie title and a valid email address." },
+      { status: 400 },
+    );
+  }
+
+  try {
+    await inngest.send(sendMoviePlotToEmailType.create(result.data));
+
+    return Response.json(
+      { message: "Movie plot request queued" },
+      { status: 202 },
+    );
   } catch (err) {
     console.error(err);
 
     return Response.json(
-      { error: "Failed to send event" },
+      { error: "We couldn't queue your request. Please try again." },
       { status: 500 },
     );
   }
-}
+};
