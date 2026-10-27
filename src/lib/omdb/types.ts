@@ -18,6 +18,6 @@ export const getMovieResponseSchema = z.discriminatedUnion("Response", [
 
 export type GetMovieRequestParams = {
   movieTitle: string;
-}
+};
 
 export type Movie = z.infer<typeof movieSchema>;

@@ -1,17 +1,17 @@
 import { NonRetriableError } from "inngest";
 
 import { getMovie } from "@/lib/omdb/client";
+import { permanentOmdbErrors } from "@/lib/omdb/constants";
 import { sendResendMoviePlotEmail } from "@/lib/resend/client";
 
 import { inngest, sendMoviePlotToEmailType } from "./client";
-import { permanentOmdbErrors } from "@/lib/omdb/constants";
 
 export const sendMoviePlotToEmail = inngest.createFunction(
   {
     id: "send-movie-plot-to-email",
     triggers: { event: sendMoviePlotToEmailType },
   },
-  async ({ event, step, logger }) => {
+  async ({ event, step }) => {
     const movie = await step.run("fetch-movie", async () => {
       const data = await getMovie({ movieTitle: event.data.movie_title });
 

@@ -11,6 +11,7 @@ import {
   Heading,
   Hr,
 } from "@react-email/components";
+
 import type { Movie } from "@/lib/omdb/types";
 
 type MoviePlotTemplateProps = {
