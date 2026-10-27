@@ -11,16 +11,20 @@ const resend = new Resend(env.RESEND_API_KEY);
 export const sendResendMoviePlotEmail = async ({
   movie,
   recipientEmail,
-  eventId
+  eventId,
 }: SendResendMoviePlotEmailParams) => {
-  const { data, error } = await resend.emails.send({
-    from: `Movie Plot <${env.RESEND_FROM_EMAIL}>`,
-    to: [recipientEmail],
-    subject: "Here is your movie plot!",
-    react: MoviePlotTemplate({ movie }),
-  }, {
-    idempotencyKey: `movie-plot/${eventId}`
-  });
+  const { data, error } = await resend.emails.send(
+    {
+      from: `Movie Plot <${env.RESEND_FROM_EMAIL}>`,
+      to: [recipientEmail],
+      subject: "Here is your movie plot!",
+      react: MoviePlotTemplate({ movie }),
+    },
+    {
+      idempotencyKey: `movie-plot/${eventId}`,
+      signal: AbortSignal.timeout(10_000),
+    },
+  );
 
   return { data, error };
 };

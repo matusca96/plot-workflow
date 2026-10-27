@@ -11,7 +11,10 @@ export const getMovie = async (params: GetMovieRequestParams) => {
   });
 
   try {
-    const response = await fetch(`${OMDB_BASE_URL}?${searchParams.toString()}`);
+    const response = await fetch(
+      `${OMDB_BASE_URL}?${searchParams.toString()}`,
+      { signal: AbortSignal.timeout(10_000) },
+    );
 
     if (!response.ok) {
       throw new Error(`OMDb request failed: HTTP ${response.status}`);
