@@ -1,9 +1,16 @@
-import { Inngest } from "inngest";
+import { Inngest, eventType } from "inngest";
+import { z } from "zod";
 
-export const inngest = new Inngest({ id: "plot-workflow" });
+export const inngest = new Inngest({ id: "plot-movie-workflow" });
+
+export const processTaskType = eventType("app/task.created", {
+  schema: z.object({
+    id: z.string()
+  })
+})
 
 export const processTask = inngest.createFunction(
-  { id: "process-task", triggers: { event: "app/task.created" }, retries: 2 },
+  { id: "process-task", triggers: { event: processTaskType }, retries: 2 },
   async ({ event, step }) => {
     const result = await step.run("handle-task", () => {
       return { processed: true, id: event.data.id };

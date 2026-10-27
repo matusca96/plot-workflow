@@ -1,17 +1,21 @@
-import { inngest } from "@/inngest";
+import { inngest, processTaskType } from "@/inngest";
 
 export async function POST(req: Request) {
   try {
     const data = await req.json();
 
-    if (!data.id) {
-      return Response.json({ message: "id is required" }, { status: 400 })
+    if (!data.id || typeof data.id !== "string") {
+      return Response.json(
+        { message: "id is required and must be a number" },
+        { status: 400 },
+      );
     }
 
-    await inngest.send({
-      name: "app/task.created",
-      data: { id: data.id },
-    });
+    await inngest.send(
+      processTaskType.create({
+        id: data.id,
+      }),
+    );
 
     return Response.json({ message: "Event sent" });
   } catch (err) {
