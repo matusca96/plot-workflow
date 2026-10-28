@@ -22,7 +22,7 @@ export const toInngestError = (error: unknown) => {
         return new RetryAfterError(error.message, "1h", { cause: error });
       case "missing_key":
       case "invalid_key":
-      case "missing_params":
+      case "invalid_params":
       case "not_found":
         return new NonRetriableError(error.message, { cause: error });
       case "unknown":

@@ -4,7 +4,7 @@ export type OmdbApiErrorKind =
   | "rate_limit"
   | "missing_key"
   | "invalid_key"
-  | "missing_params"
+  | "invalid_params"
   | "not_found"
   | "unknown";
 

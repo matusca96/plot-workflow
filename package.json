@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest"
   },
   "keywords": [],
   "author": "",
@@ -37,6 +38,8 @@
     "postcss": "^8.5.30",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^5.0.5",
     "zod": "^4.6.7"
   }
 }
