@@ -5,6 +5,7 @@ import { sendResendMoviePlotEmail } from "@/lib/resend/client";
 import { inngest, sendMoviePlotToEmailType } from "./client";
 
 import { toInngestError } from "./utils";
+import { NonRetriableError } from "inngest";
 
 export const sendMoviePlotToEmail = inngest.createFunction(
   {
@@ -20,7 +21,15 @@ export const sendMoviePlotToEmail = inngest.createFunction(
   async ({ event, step }) => {
     const movie = await step.run("fetch-movie", async () => {
       try {
-        return await getMovie({ movieTitle: event.data.movie_title });
+        const result = await getMovie({ movieTitle: event.data.movie_title });
+
+        if (!result.Plot) {
+          throw new NonRetriableError(
+            `OMDb: no plot available for "${result.Title}"`,
+          );
+        }
+
+        return result;
       } catch (error) {
         throw toInngestError(error);
       }

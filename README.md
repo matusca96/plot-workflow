@@ -56,18 +56,20 @@ Run `pnpm test` to run the unit tests (Vitest).
   - `Invalid API key!` / `No API key provided.` (401)
   - `Incorrect IMDb ID.` when no query param besides `apikey` is sent (200)
   - `Request limit reached!` when the daily limit is hit (401)
+- OMDb returns `N/A` for missing fields. A movie without a plot stops the workflow with a non-retriable error and no email is sent.
 - For Resend was also mapped few scenarios where the workflow stops and don't retry sending the email, check `NON_RETRIABLE_RESEND_ERRORS`
 - Resend uses the event ID as an idempotency key. Duplicate protection applies to the same key and payload within its 24-hour retention window (https://resend.com/changelog/idempotency-keys).
-- Rate limit was added to the function to allow 1 request per minute of the same movie title + recipient email and avoid spam
+- Function runs are limited to one start per minute for each movie title + recipient email combination. Excess runs are skipped rather than queued for later.
 
 ## Error handling
 
-Errors are grouped by what happened, and the retry decision lives in one place: `toInngestError` ([src/inngest/errors.ts](src/inngest/errors.ts)).
+Errors are grouped by what happened, and the retry decision lives in one place: `toInngestError` ([src/inngest/errors.ts](src/inngest/utils.ts)).
 
 | Failure | Error | Inngest outcome |
 | --- | --- | --- |
 | OMDb daily limit reached | `OmdbApiError` (`rate_limit`) | `RetryAfterError` (1h) |
 | Invalid/missing API key, movie not found, incorrect IMDb ID | `OmdbApiError` | `NonRetriableError` |
+| Movie found with a missing, blank, or `N/A` plot | `NonRetriableError` | No retry or email |
 | OMDb payload outside the expected schema | `OmdbSchemaError` | `NonRetriableError` |
 | Network failure, timeout, 5xx, non-JSON body | `OmdbHttpError` / `Error` | Default retry |
 | OMDb message not in `OMDB_ERROR_KINDS` | `OmdbApiError` (`unknown`) | Default retry |
@@ -86,7 +88,8 @@ The Inngest function itself (step wiring and retries) is not covered by automate
 
 ## Limitations
 
-- Function-level idempotency based on movie title and recipient is disabled. Otherwise, a failed run would prevent new event-triggered runs for that combination during the 24-hour deduplication window. Resend uses an event-based idempotency key to protect email-step retries against duplicate sends. New requests remain subject to the per-recipient rate limit.
+- HTTP `202` confirms that Inngest received the event. Movie lookup, plot validation, and email sending happen asynchronously, so the initial response cannot report their outcome. The `inngest.send()` response also does not report the function's rate-limit decision. The UI displays "Request received" and warns that repeat requests for the same movie and email within one minute may be skipped. An always-visible notice on the form explains that no email is sent if the movie has no available plot. The endpoint does not return `429` for this function-level limit.
+- Function-level idempotency based on movie title and recipient is disabled. Otherwise, a failed run would prevent new event-triggered runs for that combination during the 24-hour deduplication window. Resend uses an event-based idempotency key to protect email-step retries against duplicate sends. New requests remain subject to the movie-title + recipient email rate limit.
 - OMDb error messages are matched by exact string and are not documented by the provider. If a message changes, it degrades to the default retry instead of stopping the workflow.
 - `Request limit reached!` is a daily limit, so a 1h retry may exhaust the function's retry budget before the limit resets, in which case the run fails.
 

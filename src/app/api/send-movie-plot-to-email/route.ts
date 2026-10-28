@@ -29,14 +29,14 @@ export const POST = async (request: Request) => {
     await inngest.send(sendMoviePlotToEmailType.create(result.data));
 
     return Response.json(
-      { message: "Movie plot request queued" },
+      { message: "Movie plot request received" },
       { status: 202 },
     );
   } catch (err) {
     console.error(err);
 
     return Response.json(
-      { error: "We couldn't queue your request. Please try again." },
+      { error: "We couldn't submit your request. Please try again." },
       { status: 500 },
     );
   }

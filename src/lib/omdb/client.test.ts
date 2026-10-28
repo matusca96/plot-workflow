@@ -140,4 +140,12 @@ describe("getMovie", () => {
     expect(url.searchParams.get("apikey")).toBe("test-key");
     expect(url.searchParams.get("t")).toBe("Project Hail Mary");
   });
+
+  it("normalizes a 'N/A' plot to undefined", async () => {
+    mockJson({ ...validMovie, Plot: "N/A" });
+  
+    const movie = await getMovie({ movieTitle: "x" });
+  
+    expect(movie.Plot).toBeUndefined();
+  });
 });

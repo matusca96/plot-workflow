@@ -42,7 +42,7 @@ export default function Home() {
         message:
           response.status === 400
             ? "Please check the movie title and email address, then try again."
-            : "We couldn't queue your request. Please try again.",
+            : "We couldn't submit your request. Please try again.",
       });
     } catch {
       setState({
@@ -62,7 +62,7 @@ export default function Home() {
 
         <header className="mb-8">
           <p className="mt-5 max-w-95 text-[15px] leading-7 text-[#587362]">
-            Enter a movie title and receive the plot in your inbox.
+            Enter a movie title to request its plot by email.
           </p>
         </header>
 
@@ -71,6 +71,14 @@ export default function Home() {
           aria-busy={pending}
           className="rounded-3xl border border-[#cfe2d4] bg-[#fbfefc] p-6 shadow-[0_12px_48px_-24px_#234c3235] sm:p-8"
         >
+          <p
+            id="plot-notice"
+            role="note"
+            className="mb-6 rounded-lg border border-[#cfe2d4] bg-[#edf7f0] px-4 py-3 text-[13px] leading-5 text-[#173d2a]"
+          >
+            If the movie has no available plot, no email will be sent.
+          </p>
+
           <div className="space-y-6">
             <div>
               <label
@@ -87,6 +95,7 @@ export default function Home() {
                 required
                 pattern=".*\S.*"
                 title="Enter a movie title."
+                aria-describedby="plot-notice"
                 disabled={pending}
                 className="h-12 w-full rounded-lg border border-[#c9dccf] bg-white px-3.5 text-[15px] text-[#173d2a] outline-none transition placeholder:text-[#8a9f90] focus:border-[#3b8755] focus:ring-3 focus:ring-[#3b8755]/15 disabled:cursor-wait disabled:opacity-60"
               />
@@ -116,7 +125,7 @@ export default function Home() {
             disabled={pending}
             className="mt-7 flex h-12 w-full items-center justify-center gap-3 rounded-lg bg-[#173d2a] px-4 text-[14px] font-medium text-[#f5fff7] transition hover:bg-[#245639] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#3b8755] disabled:cursor-wait disabled:opacity-65"
           >
-            {pending ? "Queuing your request..." : "Email me the plot"}
+            {pending ? "Sending your request..." : "Email me the plot"}
             {!pending && (
               <span aria-hidden="true" className="text-[18px] font-normal">
                 ↗
@@ -131,10 +140,10 @@ export default function Home() {
             className={`mt-4 min-h-10 text-[13px] leading-5 ${state.kind === "error" ? "text-[#a23d2c]" : "text-[#587362]"}`}
           >
             {state.kind === "success" &&
-              "Your request is queued. We'll email you the plot when it's ready."}
+              "Request received. Repeat requests for the same movie and email within one minute may be skipped."}
             {state.kind === "error" && state.message}
             {state.kind === "pending" &&
-              "Please wait while we queue your request."}
+              "Please wait while we send your request."}
           </div>
         </form>
       </div>

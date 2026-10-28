@@ -1,9 +1,16 @@
 import { z } from "zod";
 
+const optionalField = z
+  .string()
+  .transform((value) =>
+    value.trim() === "N/A" ? undefined : value.trim() || undefined,
+  )
+  .optional();
+
 export const movieSchema = z.object({
   imdbID: z.string(),
   Title: z.string(),
-  Plot: z.string(),
+  Plot: optionalField,
 });
 
 export const getMovieResponseSchema = z.discriminatedUnion("Response", [
