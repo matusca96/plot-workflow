@@ -6,6 +6,8 @@ import { MoviePlotTemplate } from "@/components/email-templates/MoviePlotTemplat
 
 import { SendResendMoviePlotEmailParams } from "./types";
 
+import { ResendApiError } from "./errors";
+
 const resend = new Resend(env.RESEND_API_KEY);
 
 export const sendResendMoviePlotEmail = async ({
@@ -26,5 +28,9 @@ export const sendResendMoviePlotEmail = async ({
     },
   );
 
-  return { data, error };
+  if (error) {
+    throw new ResendApiError(error.name, error.message, { cause: error });
+  }
+
+  return data;
 };

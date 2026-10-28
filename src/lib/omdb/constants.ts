@@ -1,8 +1,11 @@
+import { OmdbApiErrorKind } from "./errors";
+
 export const OMDB_BASE_URL = "https://www.omdbapi.com";
 
-export const NON_RETRIABLE_OMDB_ERRORS = new Set([
-  "Movie not found!",
-  "Incorrect IMDb ID.",
-]);
-
-export const OMDB_RATE_LIMIT_ERROR = "Request limit reached!";
+export const OMDB_ERROR_KINDS: Record<string, OmdbApiErrorKind> = {
+  "Request limit reached!": "rate_limit",
+  "Invalid API key!": "invalid_key",
+  "No API key provided.": "missing_key",
+  "Incorrect IMDb ID.": "missing_params",
+  "Movie not found!": "not_found",
+};

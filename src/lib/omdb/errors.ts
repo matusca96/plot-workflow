@@ -1,14 +1,36 @@
-export class OmdbHttpError extends Error {
-  constructor(public readonly status: number) {
-    super(`OMDb request failed: HTTP ${status}`);
+import { z } from "zod";
 
-    this.name = "OmdbHttpError";
+export type OmdbApiErrorKind =
+  | "rate_limit"
+  | "missing_key"
+  | "invalid_key"
+  | "missing_params"
+  | "not_found"
+  | "unknown";
+
+export class OmdbApiError extends Error {
+  constructor(
+    readonly kind: OmdbApiErrorKind,
+    message: string,
+  ) {
+    super(message);
   }
 }
 
 export class OmdbSchemaError extends Error {
-  constructor(public readonly issues: unknown, options?: ErrorOptions) {
+  constructor(
+    readonly issues: z.core.$ZodIssue[],
+    options?: ErrorOptions,
+  ) {
     super("OMDb: unexpected response shape", options);
-    this.name = "OmdbSchemaError";
+  }
+}
+
+export class OmdbHttpError extends Error {
+  constructor(
+    readonly status: number,
+    options?: ErrorOptions,
+  ) {
+    super(`OMDb request failed: HTTP ${status}`, options);
   }
 }

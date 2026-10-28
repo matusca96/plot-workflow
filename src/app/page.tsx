@@ -83,7 +83,7 @@ export default function Home() {
                 id="movie-title"
                 name="movie_title"
                 type="text"
-                placeholder="e.g. The Grand Budapest Hotel"
+                placeholder="e.g. Project Hail Mary"
                 required
                 pattern=".*\S.*"
                 title="Enter a movie title."
